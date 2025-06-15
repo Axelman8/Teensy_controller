@@ -1,0 +1,136 @@
+{
+  "version": "1.0",
+  "midi": {
+    "channel": 1,
+    "thru": true
+  },
+  "buttons": [
+    {
+      "id": 0,
+      "type": "preset",
+      "value": 0,
+      "name": "Preset 0"
+    },
+    {
+      "id": 1,
+      "type": "preset",
+      "value": 1,
+      "name": "Preset 1"
+    },
+    {
+      "id": 2,
+      "type": "preset",
+      "value": 2,
+      "name": "Preset 2"
+    },
+    {
+      "id": 3,
+      "type": "preset",
+      "value": 3,
+      "name": "Preset 3"
+    },
+    {
+      "id": 4,
+      "type": "scene",
+      "value": 0,
+      "name": "Scene 1"
+    },
+    {
+      "id": 5,
+      "type": "scene",
+      "value": 1,
+      "name": "Scene 2"
+    },
+    {
+      "id": 6,
+      "type": "scene",
+      "value": 2,
+      "name": "Scene 3"
+    },
+    {
+      "id": 7,
+      "type": "scene",
+      "value": 3,
+      "name": "Scene 4"
+    },
+    {
+      "id": 8,
+      "type": "effect",
+      "value": 0,
+      "name": "Compressor"
+    },
+    {
+      "id": 9,
+      "type": "effect",
+      "value": 2,
+      "name": "Drive"
+    },
+    {
+      "id": 10,
+      "type": "effect",
+      "value": 5,
+      "name": "Reverb"
+    },
+    {
+      "id": 11,
+      "type": "effect",
+      "value": 6,
+      "name": "Delay"
+    },
+    {
+      "id": 12,
+      "type": "tuner",
+      "value": 0,
+      "name": "Tuner"
+    },
+    {
+      "id": 13,
+      "type": "looper",
+      "value": 60,
+      "name": "Looper Rec"
+    },
+    {
+      "id": 14,
+      "type": "looper",
+      "value": 61,
+      "name": "Looper Play"
+    },
+    {
+      "id": 15,
+      "type": "looper",
+      "value": 63,
+      "name": "Looper Undo"
+    }
+  ],
+  "displays": [
+    {
+      "id": 0,
+      "type": "preset",
+      "name": "Main Display"
+    },
+    {
+      "id": 1,
+      "type": "effect",
+      "effectId": 0,
+      "name": "Compressor"
+    },
+    {
+      "id": 2,
+      "type": "effect",
+      "effectId": 2,
+      "name": "Drive"
+    },
+    {
+      "id": 3,
+      "type": "effect",
+      "effectId": 5,
+      "name": "Reverb"
+    },
+    {
+      "id": 4,
+      "type": "effect",
+      "effectId": 6,
+      "name": "Delay"
+    }
+  ]
+}
