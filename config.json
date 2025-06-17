@@ -86,19 +86,19 @@
     {
       "id": 13,
       "type": "looper",
-      "value": 60,
+      "value": 0,
       "name": "Looper Rec"
     },
     {
       "id": 14,
       "type": "looper",
-      "value": 61,
+      "value": 1,
       "name": "Looper Play"
     },
     {
       "id": 15,
       "type": "looper",
-      "value": 63,
+      "value": 2,
       "name": "Looper Undo"
     }
   ],

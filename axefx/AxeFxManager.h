@@ -1,76 +1,57 @@
-#ifndef AXE_FX_MANAGER_H
-#define AXE_FX_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
-#include <MIDI.h>
-#include "AxeFxTypes.h"
-
-// MIDI kanaal voor Axe-Fx
-#define AXE_FX_MIDI_CHANNEL 1
-
-// Maximaal aantal effecten
-#define MAX_EFFECTS 12
-
-// Voorwaartse declaratie van MIDI interface
-#if defined(TEENSYDUINO)
-extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI;
-#endif
+#include <AxeFxControl.h>
 
 class AxeFxManager {
 public:
   AxeFxManager();
   
-  // Initialisatie
   void begin();
-  
-  // Update (verwerk MIDI berichten)
   void update();
   
-  // Commando's naar Axe-Fx sturen
-  void sendPresetChange(uint16_t presetNumber);
-  void sendSceneChange(uint8_t sceneNumber);
+  // Registreer callbacks van de FootController
+  void registerPresetChangeCallback(void (*callback)(AxePreset));
+  void registerEffectBypassCallback(void (*callback)(AxeEffect));
+  void registerTunerDataCallback(void (*callback)(const char*, byte, byte));
+  void registerTunerStatusCallback(void (*callback)(bool));
+  void registerLooperStatusCallback(void (*callback)(AxeLooper));
+  
+  // Commando's naar de Axe-Fx
+  void sendPresetChange(uint16_t preset);
+  void sendSceneChange(uint8_t scene);
   void sendEffectBypass(uint8_t effectId, bool bypassed);
   void sendTunerToggle(bool enabled);
   void sendLooperCommand(uint8_t command, uint8_t value);
   
-  // Getters voor huidige status
+  // Getters
   AxePreset getCurrentPreset();
-  AxeEffect getEffect(uint8_t effectId);
-  AxeTuner getTuner();
-  AxeLooper getLooper();
+  AxeEffect* getEffectById(uint8_t effectId);
   
-  // Callback registratie
-  typedef void (*PresetChangeCallback)(const AxePreset&);
-  typedef void (*EffectBypassCallback)(const AxeEffect&);
-  typedef void (*TunerDataCallback)(const AxeTuner&);
-  typedef void (*LooperStatusCallback)(const AxeLooper&);
-  
-  void registerPresetChangeCallback(PresetChangeCallback callback);
-  void registerEffectBypassCallback(EffectBypassCallback callback);
-  void registerTunerDataCallback(TunerDataCallback callback);
-  void registerLooperStatusCallback(LooperStatusCallback callback);
-
 private:
-  // Huidige status
-  AxePreset _currentPreset;
-  AxeEffect _effects[MAX_EFFECTS];
-  AxeTuner _tuner;
-  AxeLooper _looper;
+  AxeSystem _axe;
   
-  // Callbacks
-  PresetChangeCallback _presetChangeCallback;
-  EffectBypassCallback _effectBypassCallback;
-  TunerDataCallback _tunerDataCallback;
-  LooperStatusCallback _looperStatusCallback;
+  // Callback functies
+  void (*_presetChangeCallback)(AxePreset) = nullptr;
+  void (*_effectBypassCallback)(AxeEffect) = nullptr;
+  void (*_tunerDataCallback)(const char*, byte, byte) = nullptr;
+  void (*_tunerStatusCallback)(bool) = nullptr;
+  void (*_looperStatusCallback)(AxeLooper) = nullptr;
   
-  // MIDI bericht verwerking
-  void handleProgramChange(byte channel, byte program);
-  void handleControlChange(byte channel, byte control, byte value);
-  void handleSysEx(byte* array, unsigned size);
+  // Interne callback handlers
+  void onPresetChange(AxePreset preset);
+  void onEffectBypass(AxeEffect effect);
+  void onTunerData(const char* note, byte string, byte fineTune);
+  void onTunerStatus(bool enabled);
+  void onLooperStatus(AxeLooper looper);
   
-  // Helper methoden
-  void initializeEffects();
-  uint8_t getEffectIdFromCC(byte control);
+  // Static instance voor callbacks
+  static AxeFxManager* _instance;
+  
+  // Static callback functies voor de AxeSystem
+  static void presetChangeCallback(AxePreset preset);
+  static void effectBypassCallback(AxeEffect effect);
+  static void tunerDataCallback(const char* note, byte string, byte fineTune);
+  static void tunerStatusCallback(bool enabled);
+  static void looperStatusCallback(AxeLooper looper);
 };
-
-#endif // AXE_FX_MANAGER_H

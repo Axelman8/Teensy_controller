@@ -1,79 +1,92 @@
-#ifndef CONFIG_MANAGER_H
-#define CONFIG_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <SD.h>
-#include <SPI.h>
+#include "../config/PinDefinitions.h" 
+#define CONFIG_JSON_SIZE 4096  
 
-// Maximale grootte van de JSON configuratie
-#define CONFIG_JSON_SIZE 8192
 
-// Configuratie structuur voor buttons
+DynamicJsonDocument doc(CONFIG_JSON_SIZE);
+
+// Definieer button types alleen als ze nog niet gedefinieerd zijn
+#ifndef BUTTON_TYPE_NONE
+#define BUTTON_TYPE_NONE   0
+#endif
+
+#ifndef BUTTON_TYPE_PRESET
+#define BUTTON_TYPE_PRESET 1
+#endif
+
+#ifndef BUTTON_TYPE_SCENE
+#define BUTTON_TYPE_SCENE  2
+#endif
+
+#ifndef BUTTON_TYPE_EFFECT
+#define BUTTON_TYPE_EFFECT 3
+#endif
+
+#ifndef BUTTON_TYPE_TUNER
+#define BUTTON_TYPE_TUNER  4
+#endif
+
+#ifndef BUTTON_TYPE_LOOPER
+#define BUTTON_TYPE_LOOPER 5
+#endif
+
+// Maximum aantal buttons en displays
+#define MAX_BUTTONS 16
+#define MAX_DISPLAYS 4
+
+// Button configuratie
 struct ButtonConfig {
-  uint8_t buttonId;
-  uint8_t type;  // 0 = preset, 1 = scene, 2 = effect, 3 = looper, etc.
-  uint16_t value;  // preset nummer, scene nummer, effect ID, etc.
-  uint8_t holdType;
-  uint16_t holdValue;
-  char label[20];
-  uint16_t color;
+  uint8_t pin;       // GPIO pin nummer
+  uint8_t type;      // Button type (BUTTON_TYPE_*)
+  uint16_t value;    // Waarde (preset nummer, scene nummer, effect ID)
+  uint8_t holdType;  // Type actie bij lang indrukken
+  uint16_t holdValue; // Waarde voor lang indrukken
 };
 
-// Configuratie structuur voor schermen
-struct ScreenConfig {
-  uint8_t screenId;
-  uint8_t type;  // 0 = preset, 1 = scene, 2 = effect, etc.
-  uint8_t layout;
-  uint16_t color;
-  uint16_t backgroundColor;
+// Display configuratie
+struct DisplayConfig {
+  uint8_t type;      // Display type (0 = ST7735, 1 = ST7789)
+  uint8_t csPin;     // CS pin
+  uint8_t dcPin;     // DC pin
+  uint8_t rstPin;    // RST pin
+  uint16_t width;    // Scherm breedte
+  uint16_t height;   // Scherm hoogte
 };
-
-// Maximaal aantal button configuraties
-#define MAX_BUTTON_CONFIGS 18
-
-// Maximaal aantal scherm configuraties
-#define MAX_SCREEN_CONFIGS 16
 
 class ConfigManager {
+
 public:
   ConfigManager();
   
-  // Initialisatie
   void begin();
   
-  // Laad configuratie van SD kaart
+  // Laad en sla configuratie op
   bool loadConfig(const char* filename = "/config.json");
-  
-  // Sla configuratie op naar SD kaart
   bool saveConfig(const char* filename = "/config.json");
   
-  // Krijg button configuratie
+  // Getters voor configuraties
   ButtonConfig* getButtonConfig(uint8_t buttonId);
+  DisplayConfig* getDisplayConfig(uint8_t displayId);
   
-  // Krijg scherm configuratie
-  ScreenConfig* getScreenConfig(uint8_t screenId);
-  
-  // Update button configuratie
-  void updateButtonConfig(const ButtonConfig& config);
-  
-  // Update scherm configuratie
-  void updateScreenConfig(const ScreenConfig& config);
+  // Getters voor aantallen
+  uint8_t getButtonCount() const { return MAX_BUTTONS; }
+  uint8_t getDisplayCount() const { return _displayCount; }
   
 private:
-  // Configuratie arrays
-  ButtonConfig _buttonConfigs[MAX_BUTTON_CONFIGS];
-  ScreenConfig _screenConfigs[MAX_SCREEN_CONFIGS];
+  void setDefaultConfig();
   
-  // SD kaart helpers
+  // SD kaart status
   bool _sdInitialized;
   
-  // JSON parsing helpers
-  void parseButtonConfig(JsonObject& json, ButtonConfig& config);
-  void parseScreenConfig(JsonObject& json, ScreenConfig& config);
+  // Button configuraties
+  ButtonConfig _buttonConfigs[MAX_BUTTONS];
   
-  // Standaard configuratie
-  void setDefaultConfig();
+  // Display configuraties
+  DisplayConfig _displayConfigs[MAX_DISPLAYS];
+  uint8_t _displayCount;
 };
 
-#endif // CONFIG_MANAGER_H

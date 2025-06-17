@@ -1,77 +1,56 @@
-#ifndef BUTTON_MANAGER_H
-#define BUTTON_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
+#include <functional>
 #include "../config/ConfigManager.h"
-#include "../config/PinDefinitions.h"
-
-// Constanten
-#define MAX_BUTTONS 18
-#define MAX_BUTTON_EVENTS 32
-#define BUTTON_HOLD_TIME 1000  // 1 seconde voor een hold event
 
 // Button event types
-enum ButtonEventType {
-  BUTTON_PRESSED,
-  BUTTON_RELEASED,
-  BUTTON_HELD
+#define BUTTON_PRESSED  0
+#define BUTTON_RELEASED 1
+#define BUTTON_HELD     2
+
+// Debounce tijd in milliseconden
+#define DEBOUNCE_TIME 50
+
+// Tijd voor lang indrukken in milliseconden
+#define HOLD_TIME 1000
+
+// Maximum aantal buttons
+#define MAX_BUTTONS 16
+
+struct ButtonEvent {
+  uint8_t type;  // BUTTON_PRESSED, BUTTON_RELEASED, BUTTON_HELD
+  uint32_t time; // Tijdstip van event in millis()
 };
 
-// Button event struct
-struct ButtonEvent {
-  uint8_t buttonId;
-  ButtonEventType type;
-  unsigned long timestamp;
-};
+// Callback type definitie met std::function
+using ButtonEventCallback = std::function<void(uint8_t buttonId, ButtonEvent event)>;
 
 class ButtonManager {
 public:
-  // Constructor met ConfigManager
   ButtonManager(ConfigManager* configManager);
-  
-  // Constructor zonder parameters (voor backward compatibility)
-  ButtonManager();
-  
-  // Callback type definitie
-  typedef void (*ButtonEventCallback)(uint8_t buttonId, ButtonEvent event);
   
   void begin();
   void update();
   
-  bool hasEvents();
-  ButtonEvent getNextEvent();
-  
-  bool isButtonPressed(uint8_t buttonId);
-  bool isButtonHeld(uint8_t buttonId);
-  unsigned long getButtonHoldTime(uint8_t buttonId);
-  
-  // Methode om callback te registreren
+  // Callback registratie met std::function
   void registerButtonEventCallback(ButtonEventCallback callback);
   
 private:
+  void readButton(uint8_t buttonId);
+  
   ConfigManager* _configManager;
   
-  // Button state tracking
-  bool _buttonState[MAX_BUTTONS];
-  bool _lastButtonState[MAX_BUTTONS];
-  unsigned long _buttonPressTime[MAX_BUTTONS];
-  bool _buttonHoldProcessed[MAX_BUTTONS];
-  unsigned long _lastDebounceTime[MAX_BUTTONS];
+  // Button pins
   uint8_t _buttonPins[MAX_BUTTONS];
-  unsigned long _debounceDelay;
   
-  // Event queue
-  ButtonEvent _eventQueue[MAX_BUTTON_EVENTS];
-  uint8_t _queueHead;
-  uint8_t _queueTail;
-  uint8_t _queueSize;
+  // Button state tracking
+  bool _buttonStates[MAX_BUTTONS];
+  bool _lastButtonStates[MAX_BUTTONS];
+  uint32_t _lastDebounceTime[MAX_BUTTONS];
+  bool _buttonHeld[MAX_BUTTONS];
+  uint32_t _buttonPressTime[MAX_BUTTONS];
   
-  // Callback pointer
-  ButtonEventCallback _eventCallback;
-  
-  // Helper methods
-  void readButton(uint8_t buttonId);
-  void addEventToQueue(uint8_t buttonId, ButtonEventType type);
+  // Callback met std::function
+  ButtonEventCallback _buttonEventCallback;
 };
-
-#endif // BUTTON_MANAGER_H

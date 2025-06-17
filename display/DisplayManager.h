@@ -1,56 +1,35 @@
-#ifndef DISPLAY_MANAGER_H
-#define DISPLAY_MANAGER_H
+#pragma once
 
 #include <Arduino.h>
+#include <AxeFxControl.h>
+#include "BaseDisplay.h"  
 #include "../config/ConfigManager.h"
-#include "../axefx/AxeFxTypes.h"
-
-// Forward declarations
-class Screen;
-
-// Maximum aantal displays dat ondersteund wordt
-#define MAX_DISPLAYS 4
 
 class DisplayManager {
 public:
-  // Constructor met ConfigManager pointer
-  DisplayManager(ConfigManager* configManager);
-  
-  // Destructor
+  DisplayManager();
   ~DisplayManager();
   
-  // Initialisatie
   void begin();
-  
-  // Update alle displays
   void update();
   
-  // Update displays met Axe-Fx informatie
-  void updatePresetInfo(const AxePreset& preset);
-  void updateEffectStatus(const AxeEffect& effect);
-  void updateTuner(const AxeTuner& tuner);
+  // Creëer displays op basis van configuratie
+  void createDisplays(const DisplayConfig* configs, uint8_t count);
+  
+  // Update functies
+  void updatePresetInfo(AxePreset preset);
+  void updateEffectStatus(AxeEffect effect);
+  void updateTuner(const char* note, byte string, byte fineTune);
+  void updateTunerStatus(bool enabled);
   
 private:
-  ConfigManager* _configManager;
-  
-  // Array van display pointers
-  Screen* _displays[MAX_DISPLAYS];
+  BaseScreen** _displays;
   uint8_t _displayCount;
-  
-  // Huidige status informatie
-  AxePreset _currentPreset;
-  AxeTuner _currentTuner;
-  
-  // Status flags
   bool _needsUpdate;
   bool _tunerActive;
   
-  // Helper methoden
-  void createDisplays();
-  void destroyDisplays();
-  void renderPresetInfo(Screen* display);
-  void renderEffectStatus(Screen* display);
-  void renderTuner(Screen* display);
+  // Tuner data
+  char _tunerNote[4];
+  byte _tunerString;
+  byte _tunerFineTune;
 };
-
-#endif // DISPLAY_MANAGER_H

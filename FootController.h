@@ -1,90 +1,32 @@
-/*#ifndef FOOT_CONTROLLER_H
-#define FOOT_CONTROLLER_H
+#pragma once
 
 #include <Arduino.h>
 #include "config/ConfigManager.h"
-#include "display/DisplayManager.h"
 #include "input/ButtonManager.h"
+#include "display/DisplayManager.h"
 #include "axefx/AxeFxManager.h"
+#include <AxeFxControl.h>
 
 class FootController {
 public:
   FootController();
   
-  // Initialisatie
   void begin();
-  
-  // Hoofdloop update
   void update();
   
-private:
-  // Managers voor verschillende onderdelen
-  ConfigManager configManager;
-  DisplayManager displayManager;
-  ButtonManager buttonManager;
-  AxeFxManager axeFxManager;
+  // Callback functies voor AxeFxManager
+  void onPresetChange(AxePreset preset);
+  void onEffectBypass(AxeEffect effect);
+  void onTunerData(const char* note, byte string, byte fineTune);
+  void onTunerStatus(bool enabled);
+  void onLooperStatus(AxeLooper looper);
   
-  // Interne status
-  bool initialized;
-  unsigned long lastUpdateTime;
-  
-  // Interne methoden
-  void handleButtonEvents();
-  void updateDisplays();
-  void processAxeFxCallbacks();
-};
-
-#endif // FOOT_CONTROLLER_H*/
-
-
-#ifndef FOOT_CONTROLLER_H
-#define FOOT_CONTROLLER_H
-
-#include <Arduino.h>
-#include "config/ConfigManager.h"
-#include "display/DisplayManager.h"
-#include "input/ButtonManager.h"
-#include "axefx/AxeFxManager.h"
-
-class FootController {
-public:
-  FootController();
-  
-  // Initialisatie
-  void begin();
-  
-  // Hoofdloop update
-  void update();
-  
-  // Statische pointer naar huidige instantie voor callbacks
-  static FootController* instance;
-  
-  // Callback handlers
-  void handlePresetChange(const AxePreset& preset);
-  void handleEffectBypass(const AxeEffect& effect);
-  void handleTunerData(const AxeTuner& tuner);
+  // Callback functie voor ButtonManager
+  void onButtonEvent(const ButtonEvent& event);
   
 private:
-  // Managers voor verschillende onderdelen
-  ConfigManager configManager;
-  DisplayManager displayManager;
-  ButtonManager buttonManager;
-  AxeFxManager axeFxManager;
-  
-  // Interne status
-  bool initialized;
-  unsigned long lastUpdateTime;
-  
-  // Interne methoden
-  void handleButtonEvents();
-  void updateDisplays();
-  void processAxeFxCallbacks();
+  ConfigManager* _configManager;
+  ButtonManager* _buttonManager;
+  DisplayManager* _displayManager;
+  AxeFxManager* _axeFxManager;
 };
-
-// Statische callback functies
-void onPresetChange(const AxePreset& preset);
-void onEffectBypass(const AxeEffect& effect);
-void onTunerData(const AxeTuner& tuner);
-
-#endif // FOOT_CONTROLLER_H
-

@@ -1,23 +1,25 @@
-#include "ConfigManager.h"
+#include <SD.h>
+#include <ArduinoJson.h>
+#include "../config/ConfigManager.h"
 
-ConfigManager::ConfigManager() : _sdInitialized(false) {
+
+ConfigManager::ConfigManager() : _sdInitialized(false), _displayCount(0) {
   // Initialiseer arrays met standaardwaarden
-  for (int i = 0; i < MAX_BUTTON_CONFIGS; i++) {
-    _buttonConfigs[i].buttonId = i;
-    _buttonConfigs[i].type = 0;
+  for (int i = 0; i < MAX_BUTTONS; i++) {
+    _buttonConfigs[i].pin = 22 + i; // Start vanaf pin 22
+    _buttonConfigs[i].type = BUTTON_TYPE_NONE;
     _buttonConfigs[i].value = 0;
-    _buttonConfigs[i].holdType = 0;
+    _buttonConfigs[i].holdType = BUTTON_TYPE_NONE;
     _buttonConfigs[i].holdValue = 0;
-    strcpy(_buttonConfigs[i].label, "Button");
-    _buttonConfigs[i].color = 0xFFFF;  // Wit
   }
   
-  for (int i = 0; i < MAX_SCREEN_CONFIGS; i++) {
-    _screenConfigs[i].screenId = i;
-    _screenConfigs[i].type = 0;
-    _screenConfigs[i].layout = 0;
-    _screenConfigs[i].color = 0xFFFF;  // Wit
-    _screenConfigs[i].backgroundColor = 0x0000;  // Zwart
+  for (int i = 0; i < MAX_DISPLAYS; i++) {
+    _displayConfigs[i].type = 0;
+    _displayConfigs[i].csPin = 10 + i;
+    _displayConfigs[i].dcPin = 9;
+    _displayConfigs[i].rstPin = 8;
+    _displayConfigs[i].width = 160;
+    _displayConfigs[i].height = 128;
   }
 }
 
@@ -47,28 +49,44 @@ bool ConfigManager::loadConfig(const char* filename) {
   if (!configFile) return false;
   
   // Alloceer een tijdelijke buffer voor de JSON data
-  StaticJsonDocument<CONFIG_JSON_SIZE> doc;
+  JsonDocument doc;  // Gebruik JsonDocument in plaats van StaticJsonDocument
   
-  // Parse de JSON
+  // Deserialize de JSON data
   DeserializationError error = deserializeJson(doc, configFile);
   configFile.close();
   
-  if (error) return false;
-  
-  // Parse button configuraties
-  JsonArray buttons = doc["buttons"];
-  for (JsonObject button : buttons) {
-    ButtonConfig config;
-    parseButtonConfig(button, config);
-    updateButtonConfig(config);
+  if (error) {
+    Serial.print("JSON parsing failed: ");
+    Serial.println(error.c_str());
+    return false;
   }
   
-  // Parse scherm configuraties
-  JsonArray screens = doc["screens"];
-  for (JsonObject screen : screens) {
-    ScreenConfig config;
-    parseScreenConfig(screen, config);
-    updateScreenConfig(config);
+  // Verwerk button configuraties
+  JsonArray buttons = doc["buttons"].as<JsonArray>();  // Gebruik .as<JsonArray>()
+  for (JsonObject button : buttons) {
+    uint8_t id = button["id"] | 0;
+    if (id < MAX_BUTTONS) {
+      _buttonConfigs[id].pin = button["pin"] | (22 + id);
+      _buttonConfigs[id].type = button["type"] | BUTTON_TYPE_NONE;
+      _buttonConfigs[id].value = button["value"] | 0;
+      _buttonConfigs[id].holdType = button["holdType"] | BUTTON_TYPE_NONE;
+      _buttonConfigs[id].holdValue = button["holdValue"] | 0;
+    }
+  }
+  
+  // Verwerk display configuraties
+  _displayCount = 0;
+  JsonArray displays = doc["displays"].as<JsonArray>();  // Gebruik .as<JsonArray>()
+  for (JsonObject display : displays) {
+    _displayConfigs[_displayCount].type = display["type"] | 0;
+    _displayConfigs[_displayCount].csPin = display["csPin"] | (10 + _displayCount);
+    _displayConfigs[_displayCount].dcPin = display["dcPin"] | 9;
+    _displayConfigs[_displayCount].rstPin = display["rstPin"] | 8;
+    _displayConfigs[_displayCount].width = display["width"] | 160;
+    _displayConfigs[_displayCount].height = display["height"] | 128;
+    _displayCount++;
+    
+    if (_displayCount >= MAX_DISPLAYS) break;
   }
   
   return true;
@@ -87,32 +105,32 @@ bool ConfigManager::saveConfig(const char* filename) {
   if (!configFile) return false;
   
   // Maak een JSON document
-  StaticJsonDocument<CONFIG_JSON_SIZE> doc;
+  JsonDocument doc;  // Gebruik JsonDocument in plaats van StaticJsonDocument
   
-  // Maak arrays voor buttons en schermen
+  // Maak arrays voor buttons en displays
   JsonArray buttons = doc.createNestedArray("buttons");
-  JsonArray screens = doc.createNestedArray("screens");
+  JsonArray displays = doc.createNestedArray("displays");
   
   // Voeg button configuraties toe
-  for (int i = 0; i < MAX_BUTTON_CONFIGS; i++) {
-    JsonObject button = buttons.createNestedObject();
-    button["id"] = _buttonConfigs[i].buttonId;
+  for (int i = 0; i < MAX_BUTTONS; i++) {
+    JsonObject button = buttons.add<JsonObject>();  // Gebruik add<JsonObject>() in plaats van createNestedObject()
+    button["id"] = i;
+    button["pin"] = _buttonConfigs[i].pin;
     button["type"] = _buttonConfigs[i].type;
     button["value"] = _buttonConfigs[i].value;
     button["holdType"] = _buttonConfigs[i].holdType;
     button["holdValue"] = _buttonConfigs[i].holdValue;
-    button["label"] = _buttonConfigs[i].label;
-    button["color"] = _buttonConfigs[i].color;
   }
   
-  // Voeg scherm configuraties toe
-  for (int i = 0; i < MAX_SCREEN_CONFIGS; i++) {
-    JsonObject screen = screens.createNestedObject();
-    screen["id"] = _screenConfigs[i].screenId;
-    screen["type"] = _screenConfigs[i].type;
-    screen["layout"] = _screenConfigs[i].layout;
-    screen["color"] = _screenConfigs[i].color;
-    screen["backgroundColor"] = _screenConfigs[i].backgroundColor;
+  // Voeg display configuraties toe
+  for (int i = 0; i < _displayCount; i++) {
+    JsonObject display = displays.add<JsonObject>();  // Gebruik add<JsonObject>() in plaats van createNestedObject()
+    display["type"] = _displayConfigs[i].type;
+    display["csPin"] = _displayConfigs[i].csPin;
+    display["dcPin"] = _displayConfigs[i].dcPin;
+    display["rstPin"] = _displayConfigs[i].rstPin;
+    display["width"] = _displayConfigs[i].width;
+    display["height"] = _displayConfigs[i].height;
   }
   
   // Schrijf de JSON naar het bestand
@@ -125,74 +143,55 @@ bool ConfigManager::saveConfig(const char* filename) {
   return true;
 }
 
-void ConfigManager::parseButtonConfig(JsonObject& json, ButtonConfig& config) {
-  config.buttonId = json["id"] | 0;
-  config.type = json["type"] | 0;
-  config.value = json["value"] | 0;
-  config.holdType = json["holdType"] | 0;
-  config.holdValue = json["holdValue"] | 0;
-  
-  const char* label = json["label"] | "Button";
-  strncpy(config.label, label, sizeof(config.label) - 1);
-  config.label[sizeof(config.label) - 1] = '\0';  // Zorg voor null-terminatie
-  
-  config.color = json["color"] | 0xFFFF;
-}
 
-void ConfigManager::parseScreenConfig(JsonObject& json, ScreenConfig& config) {
-  config.screenId = json["id"] | 0;
-  config.type = json["type"] | 0;
-  config.layout = json["layout"] | 0;
-  config.color = json["color"] | 0xFFFF;
-  config.backgroundColor = json["backgroundColor"] | 0x0000;
+void ConfigManager::setDefaultConfig() {
+  // Stel standaard button configuraties in
+  _buttonConfigs[0].type = BUTTON_TYPE_PRESET;
+  _buttonConfigs[0].value = 0;  // Preset 0
+  
+  _buttonConfigs[1].type = BUTTON_TYPE_PRESET;
+  _buttonConfigs[1].value = 1;  // Preset 1
+  
+  _buttonConfigs[2].type = BUTTON_TYPE_SCENE;
+  _buttonConfigs[2].value = 0;  // Scene 0
+  
+  _buttonConfigs[3].type = BUTTON_TYPE_SCENE;
+  _buttonConfigs[3].value = 1;  // Scene 1
+  
+  _buttonConfigs[4].type = BUTTON_TYPE_EFFECT;
+  _buttonConfigs[4].value = 58; // Drive 1 (ID 58)
+  
+  _buttonConfigs[5].type = BUTTON_TYPE_EFFECT;
+  _buttonConfigs[5].value = 59; // Drive 2 (ID 59)
+  
+  _buttonConfigs[6].type = BUTTON_TYPE_TUNER;
+  _buttonConfigs[6].value = 1;  // Tuner aan
+  _buttonConfigs[6].holdType = BUTTON_TYPE_TUNER;
+  _buttonConfigs[6].holdValue = 0; // Tuner uit
+  
+  _buttonConfigs[7].type = BUTTON_TYPE_LOOPER;
+  _buttonConfigs[7].value = 1;  // Looper play
+  
+  // Stel standaard display configuraties in
+  _displayCount = 1;
+  _displayConfigs[0].type = 0;  // ST7735
+  _displayConfigs[0].csPin = 10;
+  _displayConfigs[0].dcPin = 9;
+  _displayConfigs[0].rstPin = 8;
+  _displayConfigs[0].width = 160;
+  _displayConfigs[0].height = 128;
 }
 
 ButtonConfig* ConfigManager::getButtonConfig(uint8_t buttonId) {
-  if (buttonId < MAX_BUTTON_CONFIGS) {
+  if (buttonId < MAX_BUTTONS) {
     return &_buttonConfigs[buttonId];
   }
   return nullptr;
 }
 
-ScreenConfig* ConfigManager::getScreenConfig(uint8_t screenId) {
-  if (screenId < MAX_SCREEN_CONFIGS) {
-    return &_screenConfigs[screenId];
+DisplayConfig* ConfigManager::getDisplayConfig(uint8_t displayId) {
+  if (displayId < _displayCount) {
+    return &_displayConfigs[displayId];
   }
   return nullptr;
-}
-
-void ConfigManager::updateButtonConfig(const ButtonConfig& config) {
-  uint8_t buttonId = config.buttonId;
-  if (buttonId < MAX_BUTTON_CONFIGS) {
-    _buttonConfigs[buttonId] = config;
-  }
-}
-
-void ConfigManager::updateScreenConfig(const ScreenConfig& config) {
-  uint8_t screenId = config.screenId;
-  if (screenId < MAX_SCREEN_CONFIGS) {
-    _screenConfigs[screenId] = config;
-  }
-}
-
-void ConfigManager::setDefaultConfig() {
-  // Stel standaard button configuraties in
-  for (int i = 0; i < MAX_BUTTON_CONFIGS; i++) {
-    _buttonConfigs[i].buttonId = i;
-    _buttonConfigs[i].type = 0;  // Preset type
-    _buttonConfigs[i].value = i;  // Preset nummer = button ID
-    _buttonConfigs[i].holdType = 1;  // Scene type bij ingedrukt houden
-    _buttonConfigs[i].holdValue = 0;  // Scene 0
-    sprintf(_buttonConfigs[i].label, "Preset %d", i);
-    _buttonConfigs[i].color = 0xFFFF;  // Wit
-  }
-  
-  // Stel standaard scherm configuraties in
-  for (int i = 0; i < MAX_SCREEN_CONFIGS; i++) {
-    _screenConfigs[i].screenId = i;
-    _screenConfigs[i].type = 0;  // Preset info
-    _screenConfigs[i].layout = 0;  // Standaard layout
-    _screenConfigs[i].color = 0xFFFF;  // Wit
-    _screenConfigs[i].backgroundColor = 0x0000;  // Zwart
-  }
 }
