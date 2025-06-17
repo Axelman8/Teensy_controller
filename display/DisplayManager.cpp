@@ -146,8 +146,8 @@ void DisplayManager::updateTunerStatus(bool enabled) {
   _needsUpdate = true;
 }
 
-void DisplayManager::updateLooperStatus(AxeLooper looper) {
-  // Update displays met looper status
+void DisplayManager::updateLooperStatus(const MyAxeLooper& looper) {
+  // Update displays met looper info
   for (uint8_t i = 0; i < _displayCount; i++) {
     if (_displays[i] != nullptr) {
       _displays[i]->updateLooperStatus(looper);
@@ -157,3 +157,4 @@ void DisplayManager::updateLooperStatus(AxeLooper looper) {
   // Markeer voor update
   _needsUpdate = true;
 }
+

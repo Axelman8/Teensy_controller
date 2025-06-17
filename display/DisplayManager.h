@@ -22,7 +22,7 @@ public:
   void updateEffectStatus(AxeEffect effect);
   void updateTuner(const char* note, byte string, byte fineTune);
   void updateTunerStatus(bool enabled);
-  void updateLooperStatus(AxeLooper looper);
+  void updateLooperStatus(const MyAxeLooper& looper);
   
 private:
   BaseScreen** _displays;

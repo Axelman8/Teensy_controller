@@ -25,7 +25,7 @@ public:
   void updateTuner(const char* note, byte string, byte fineTune) override;
   void showTuner(bool enabled, const char* note, byte string, byte fineTune) override;
   virtual void updateLooperStatus(AxeLooper looper) override; 
-  AxeLooper _looper;
+    MyAxeLooper _looper;
    
 private:
   // Implementatie details

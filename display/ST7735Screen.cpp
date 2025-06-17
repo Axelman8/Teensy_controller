@@ -1,4 +1,5 @@
 #include "ST7735Screen.h"
+#include "../..axe/AxeStructs.h"
 
 ST7735Screen::ST7735Screen(uint8_t csPin, uint8_t dcPin, uint8_t rstPin)
   : _csPin(csPin), _dcPin(dcPin), _rstPin(rstPin),
@@ -222,13 +223,13 @@ void ST7735Screen::drawLooperScreen() {
   _display->setTextSize(1);
   _display->setCursor(10, 40);
   
-  if (_looper.record) {
+  if (_looper.recording) {
     _display->setTextColor(ST7735_RED);
     _display->print("RECORDING");
-  } else if (_looper.play) {
+  } else if (_looper.playing) {
     _display->setTextColor(ST7735_GREEN);
     _display->print("PLAYING");
-  } else if (_looper.overdub) {
+  } else if (_looper.overdubbing) {
     _display->setTextColor(ST7735_YELLOW);
     _display->print("OVERDUB");
   } else {
