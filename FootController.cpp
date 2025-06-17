@@ -9,26 +9,33 @@ FootController::FootController() {
 
 
 void FootController::begin() {
-  // Initialiseer componenten
+  // Initialiseer config manager
   _configManager->begin();
-  _buttonManager->begin();
-  _displayManager->begin();
   
-  // Configureer button pins
+  // Initialiseer button manager
+  _buttonManager->begin();
+  
+  // Configureer buttons op basis van config
   for (int i = 0; i < _configManager->getButtonCount(); i++) {
     ButtonConfig* config = _configManager->getButtonConfig(i);
-    _buttonManager->configureButton(config->buttonId, config->pin);
+    // Gebruik de juiste methode en parameters volgens je GitHub code
+    _buttonManager->setButtonPin(i, config->pin);
   }
   
-  // Configureer displays
+  // Initialiseer display manager
+  _displayManager->begin();
+  
+  // Configureer displays op basis van config
   _displayManager->createDisplays(_configManager->getDisplayConfigs(), _configManager->getDisplayCount());
   
+  // Initialiseer Axe-Fx manager
+  _axeFxManager->begin();
+  
   // Registreer callbacks
-  _buttonManager->registerButtonEventCallback([this](const ButtonEvent& event) {
-    this->onButtonEvent(event);
+  _buttonManager->registerButtonEventCallback([this](uint8_t buttonId, ButtonEvent event) {
+    this->onButtonEvent(buttonId, event);
   });
   
-  // Registreer callbacks voor AxeFxManager
   _axeFxManager->registerPresetChangeCallback([this](AxePreset preset) {
     this->onPresetChange(preset);
   });
@@ -48,9 +55,6 @@ void FootController::begin() {
   _axeFxManager->registerLooperStatusCallback([this](AxeLooper looper) {
     this->onLooperStatus(looper);
   });
-  
-  // Start AxeFxManager
-  _axeFxManager->begin();
 }
 
 void FootController::update() {
