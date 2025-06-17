@@ -14,6 +14,7 @@
 
 #include "axefx/AxeFxManager.h"
 #include "axefx/AxeFxManager.cpp"
+#include "../axefx/AxeStructs.h"
 
 #include "FootController.h"
 #include "FootController.cpp"
@@ -22,6 +23,7 @@
 #include "display/ST7789Screen.cpp"
 
 #include "FootController.h"
+
 
 
 // Globale pointer voor AxeFxManager callbacks

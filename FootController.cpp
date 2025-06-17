@@ -132,9 +132,17 @@ void FootController::onTunerStatus(bool enabled) {
   _displayManager->updateTunerStatus(enabled);
 }
 
-// In de onLooperStatus functie:
-void FootController::onLooperStatus(AxeLooper looper) {
-  // Update displays met looper status
-  _displayManager->updateLooperStatus(looper);
+void FootController::onLooperStatus(const AxeLooper& axeLooper) {
+  // Converteer AxeLooper naar MyAxeLooper
+  MyAxeLooper myLooper;
+  
+  // Vul de MyAxeLooper met gegevens uit AxeLooper
+  // Hier moet je de juiste velden mappen op basis van de AxeLooper API
+  myLooper.recording = axeLooper.getRecord();
+  myLooper.playing = axeLooper.getPlay();
+  // Voeg andere velden toe indien nodig
+  
+  // Update display met looper status
+  _displayManager->updateLooperStatus(myLooper);
 }
 

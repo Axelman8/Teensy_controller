@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <AxeFxControl.h>
 #include "BaseScreen.h"
+#include "../axefx/AxeStructs.h"
 
 #define MAX_DISPLAYS 4
 

@@ -63,11 +63,10 @@ void ST7789Screen::update() {
   }
 }
 
-void ST7789Screen::updateLooperStatus(AxeLooper looper) {
-    _looper = looper;
-    if (_contentType == 3) { // Als looper scherm actief is
-        drawLooperScreen();
-    }
+void ST7789Screen::updateLooperStatus(const MyAxeLooper& looper) {
+  _looper = looper;
+  _contentType = 3; // Looper scherm
+  _needsFullRedraw = true;
 }
 
 void ST7789Screen::updatePresetInfo(AxePreset preset) {

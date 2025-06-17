@@ -1,6 +1,7 @@
 #include <SD.h>
 #include <ArduinoJson.h>
 #include "../config/ConfigManager.h"
+#include "../axefx/AxeStructs.h"
 
 
 ConfigManager::ConfigManager() : _sdInitialized(false), _displayCount(0) {
