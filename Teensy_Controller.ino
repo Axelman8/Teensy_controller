@@ -32,7 +32,9 @@ FootController* controller = nullptr;
 
 void setup() {
   // Start seriële communicatie voor debug
-  Serial.begin(115200);
+// Initialisatie
+  Serial8.begin(31250);  // MIDI baud rate voor Axe-Fx
+  
   
   // Wacht even voor stabiliteit
   delay(500);
@@ -51,6 +53,7 @@ void setup() {
   
   // Maak controller aan
   controller = new FootController();
+  
   
   // Sla de AxeFxManager op in de globale pointer voor callbacks
   g_axeFxManager = controller->getAxeFxManager();

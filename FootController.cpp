@@ -2,7 +2,7 @@
 
 FootController::FootController() {
   _configManager = new ConfigManager();
-  _buttonManager = new ButtonManager(MAX_BUTTONS);  // Geef het maximum aantal buttons door
+  _buttonManager = new ButtonManager(_configManager);  // Geef ConfigManager door
   _axeFxManager = new AxeFxManager();
   _displayManager = new DisplayManager();
 }
@@ -15,46 +15,48 @@ void FootController::begin() {
   // Initialiseer button manager
   _buttonManager->begin();
   
-  // Configureer buttons op basis van config
-  for (int i = 0; i < _configManager->getButtonCount(); i++) {
-    ButtonConfig* config = _configManager->getButtonConfig(i);
-    // Gebruik de juiste methode en parameters volgens je GitHub code
-    _buttonManager->setButtonPin(i, config->pin);
-  }
-  
   // Initialiseer display manager
   _displayManager->begin();
   
   // Configureer displays op basis van config
-  _displayManager->createDisplays(_configManager->getDisplayConfigs(), _configManager->getDisplayCount());
+  // Gebruik de juiste methode volgens je GitHub code
+  _displayManager->createDisplays();
   
   // Initialiseer Axe-Fx manager
   _axeFxManager->begin();
   
   // Registreer callbacks
-  _buttonManager->registerButtonEventCallback([this](uint8_t buttonId, ButtonEvent event) {
-    this->onButtonEvent(buttonId, event);
-  });
+  // Gebruik normale functies in plaats van lambdas omdat je code geen lambdas ondersteunt
+  _buttonManager->registerButtonEventCallback(std::bind(&FootController::onButtonEvent, this, std::placeholders::_1, std::placeholders::_2));
   
-  _axeFxManager->registerPresetChangeCallback([this](AxePreset preset) {
-    this->onPresetChange(preset);
-  });
-  
-  _axeFxManager->registerEffectBypassCallback([this](AxeEffect effect) {
-    this->onEffectBypass(effect);
-  });
-  
-  _axeFxManager->registerTunerDataCallback([this](const char* note, byte string, byte fineTune) {
-    this->onTunerData(note, string, fineTune);
-  });
-  
-  _axeFxManager->registerTunerStatusCallback([this](bool enabled) {
-    this->onTunerStatus(enabled);
-  });
-  
-  _axeFxManager->registerLooperStatusCallback([this](AxeLooper looper) {
-    this->onLooperStatus(looper);
-  });
+  _axeFxManager->registerPresetChangeCallback(onPresetChangeStatic);
+  _axeFxManager->registerEffectBypassCallback(onEffectBypassStatic);
+  _axeFxManager->registerTunerDataCallback(onTunerDataStatic);
+  _axeFxManager->registerTunerStatusCallback(onTunerStatusStatic);
+  _axeFxManager->registerLooperStatusCallback(onLooperStatusStatic);
+}
+
+// Statische callback functies
+static FootController* g_footController = nullptr;
+
+void FootController::onPresetChangeStatic(AxePreset preset) {
+  if (g_footController) g_footController->onPresetChange(preset);
+}
+
+void FootController::onEffectBypassStatic(AxeEffect effect) {
+  if (g_footController) g_footController->onEffectBypass(effect);
+}
+
+void FootController::onTunerDataStatic(const char* note, byte string, byte fineTune) {
+  if (g_footController) g_footController->onTunerData(note, string, fineTune);
+}
+
+void FootController::onTunerStatusStatic(bool enabled) {
+  if (g_footController) g_footController->onTunerStatus(enabled);
+}
+
+void FootController::onLooperStatusStatic(AxeLooper looper) {
+  if (g_footController) g_footController->onLooperStatus(looper);
 }
 
 void FootController::update() {
@@ -64,12 +66,14 @@ void FootController::update() {
   _displayManager->update();
 }
 
-void FootController::onButtonEvent(const ButtonEvent& event) {
-  // Verwerk button events
-  ButtonConfig* config = _configManager->getButtonConfig(event.buttonId);
+void FootController::onButtonEvent(uint8_t buttonId, ButtonEvent event) {
+  ButtonConfig* config = _configManager->getButtonConfig(buttonId);
   
+  if (!config) return;
+  
+  // Verwerk button event
   if (event.type == BUTTON_PRESSED) {
-    // Verwerk korte druk
+    // Verwerk indrukken
     switch (config->type) {
       case BUTTON_TYPE_PRESET:
         _axeFxManager->sendPresetChange(config->value);
@@ -80,15 +84,17 @@ void FootController::onButtonEvent(const ButtonEvent& event) {
         break;
         
       case BUTTON_TYPE_EFFECT:
-        _axeFxManager->sendEffectBypass(config->value, false); // false = enable effect
+        _axeFxManager->sendEffectBypass(config->value, !config->bypassed);
+        config->bypassed = !config->bypassed;
         break;
         
       case BUTTON_TYPE_TUNER:
-        _axeFxManager->sendTunerToggle(true);
+        _axeFxManager->sendTunerToggle(!_tunerEnabled);
+        _tunerEnabled = !_tunerEnabled;
         break;
         
       case BUTTON_TYPE_LOOPER:
-        _axeFxManager->sendLooperCommand(config->value, 127); // 127 = aan
+        _axeFxManager->sendLooperCommand(config->holdValue, 127); // 127 = aan
         break;
     }
   }
