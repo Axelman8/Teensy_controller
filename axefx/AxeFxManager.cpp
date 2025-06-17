@@ -32,7 +32,7 @@ void AxeFxManager::update() {
   _axe.update();
 }
 
-// Registreer callbacks van de FootController
+// Registreer callbacks
 void AxeFxManager::registerPresetChangeCallback(void (*callback)(AxePreset)) {
   _presetChangeCallback = callback;
 }
@@ -79,10 +79,8 @@ void AxeFxManager::sendTunerToggle(bool enabled) {
 }
 
 void AxeFxManager::sendLooperCommand(uint8_t command, uint8_t value) {
-  // Gebruik de juiste constanten uit de AxeFxControl bibliotheek
-  // Dit is een voorbeeld, controleer de juiste constanten in de bibliotheek
   byte data[2] = {command, value};
-  _axe.sendCommand(0x0D, data, 2); // 0x0D is een voorbeeld, controleer de juiste waarde
+  _axe.sendCommand(0x0D, data, 2); // 0x0D is de LOOPER functie code
 }
 
 // Getters
@@ -90,7 +88,7 @@ AxePreset AxeFxManager::getCurrentPreset() {
   return _axe.getCurrentPreset();
 }
 
-AxeEffect* AxeFxManager::getEffectById(uint8_t effectId) {
+AxeEffect* AxeFxManager::getEffect(uint8_t effectId) {
   return _axe.getCurrentPreset().getEffectById(effectId);
 }
 

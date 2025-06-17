@@ -122,7 +122,7 @@ void DisplayManager::updateTuner(const char* note, byte string, byte fineTune) {
   if (_tunerActive) {
     for (uint8_t i = 0; i < _displayCount; i++) {
       if (_displays[i] != nullptr) {
-        _displays[i]->updateTuner(_tunerNote, _tunerString, _tunerFineTune);
+        _displays[i]->updateTuner(note, string, fineTune);
       }
     }
     
@@ -139,6 +139,18 @@ void DisplayManager::updateTunerStatus(bool enabled) {
   for (uint8_t i = 0; i < _displayCount; i++) {
     if (_displays[i] != nullptr) {
       _displays[i]->showTuner(enabled, _tunerNote, _tunerString, _tunerFineTune);
+    }
+  }
+  
+  // Markeer voor update
+  _needsUpdate = true;
+}
+
+void DisplayManager::updateLooperStatus(AxeLooper looper) {
+  // Update displays met looper status
+  for (uint8_t i = 0; i < _displayCount; i++) {
+    if (_displays[i] != nullptr) {
+      _displays[i]->updateLooperStatus(looper);
     }
   }
   

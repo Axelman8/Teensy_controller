@@ -10,7 +10,7 @@ public:
   void begin();
   void update();
   
-  // Registreer callbacks van de FootController
+  // Registreer callbacks
   void registerPresetChangeCallback(void (*callback)(AxePreset));
   void registerEffectBypassCallback(void (*callback)(AxeEffect));
   void registerTunerDataCallback(void (*callback)(const char*, byte, byte));
@@ -26,24 +26,10 @@ public:
   
   // Getters
   AxePreset getCurrentPreset();
-  AxeEffect* getEffectById(uint8_t effectId);
+  AxeEffect* getEffect(uint8_t effectId);
   
 private:
   AxeSystem _axe;
-  
-  // Callback functies
-  void (*_presetChangeCallback)(AxePreset) = nullptr;
-  void (*_effectBypassCallback)(AxeEffect) = nullptr;
-  void (*_tunerDataCallback)(const char*, byte, byte) = nullptr;
-  void (*_tunerStatusCallback)(bool) = nullptr;
-  void (*_looperStatusCallback)(AxeLooper) = nullptr;
-  
-  // Interne callback handlers
-  void onPresetChange(AxePreset preset);
-  void onEffectBypass(AxeEffect effect);
-  void onTunerData(const char* note, byte string, byte fineTune);
-  void onTunerStatus(bool enabled);
-  void onLooperStatus(AxeLooper looper);
   
   // Static instance voor callbacks
   static AxeFxManager* _instance;
@@ -54,4 +40,11 @@ private:
   static void tunerDataCallback(const char* note, byte string, byte fineTune);
   static void tunerStatusCallback(bool enabled);
   static void looperStatusCallback(AxeLooper looper);
+  
+  // Callback functies
+  void (*_presetChangeCallback)(AxePreset) = nullptr;
+  void (*_effectBypassCallback)(AxeEffect) = nullptr;
+  void (*_tunerDataCallback)(const char*, byte, byte) = nullptr;
+  void (*_tunerStatusCallback)(bool) = nullptr;
+  void (*_looperStatusCallback)(AxeLooper) = nullptr;
 };

@@ -2,10 +2,11 @@
 
 FootController::FootController() {
   _configManager = new ConfigManager();
-  _buttonManager = new ButtonManager();
-  _displayManager = new DisplayManager();
+  _buttonManager = new ButtonManager(MAX_BUTTONS);  // Geef het maximum aantal buttons door
   _axeFxManager = new AxeFxManager();
+  _displayManager = new DisplayManager();
 }
+
 
 void FootController::begin() {
   // Initialiseer componenten
@@ -96,27 +97,33 @@ void FootController::onButtonEvent(const ButtonEvent& event) {
   }
 }
 
+// In de onPresetChange functie:
 void FootController::onPresetChange(AxePreset preset) {
-  // Update display met nieuwe preset info
+  // Update displays met preset info
   _displayManager->updatePresetInfo(preset);
 }
 
+// In de onEffectBypass functie:
 void FootController::onEffectBypass(AxeEffect effect) {
-  // Update display met nieuwe effect status
+  // Update displays met effect status
   _displayManager->updateEffectStatus(effect);
 }
 
+// In de onTunerData functie:
 void FootController::onTunerData(const char* note, byte string, byte fineTune) {
-  // Update display met tuner data
+  // Update displays met tuner data
   _displayManager->updateTuner(note, string, fineTune);
 }
 
+// In de onTunerStatus functie:
 void FootController::onTunerStatus(bool enabled) {
-  // Update display met tuner status
+  // Update displays met tuner status
   _displayManager->updateTunerStatus(enabled);
 }
 
+// In de onLooperStatus functie:
 void FootController::onLooperStatus(AxeLooper looper) {
-  // Implementeer indien nodig
-  // Bijvoorbeeld: update display met looper status
+  // Update displays met looper status
+  _displayManager->updateLooperStatus(looper);
 }
+
