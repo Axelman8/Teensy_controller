@@ -59,6 +59,13 @@ void ST7735Screen::update() {
   }
 }
 
+void ST7735Screen::updateLooperStatus(AxeLooper looper) {
+    _looper = looper;
+    if (_contentType == 3) { // Als looper scherm actief is
+        drawLooperScreen();
+    }
+}
+
 void ST7735Screen::updatePresetInfo(AxePreset preset) {
   _contentType = 0; // Preset info
   _presetNumber = preset.getPresetNumber();
@@ -105,6 +112,9 @@ void ST7735Screen::showTuner(bool enabled, const char* note, byte string, byte f
   
   _needsFullRedraw = true;
 }
+
+
+
 
 
 void ST7735Screen::drawPresetScreen() {

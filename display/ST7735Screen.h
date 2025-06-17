@@ -7,7 +7,12 @@
 #include <AxeFxControl.h>
 #include "BaseDisplay.h"  
 
-class ST7735Screen : public BaseScreen {
+#define ST7735_SCREEN_WIDTH  128  
+#define ST7735_SCREEN_HEIGHT 160  
+
+class ST7735Screen : public BaseScreen 
+{
+	
 public:
   ST7735Screen(uint8_t csPin, uint8_t dcPin, uint8_t rstPin);
   virtual ~ST7735Screen();
@@ -49,4 +54,13 @@ private:
   void drawPresetScreen();
   void drawEffectScreen();
   void drawTunerScreen();
+
+struct {
+    bool engaged;
+    const char* note;
+    byte string;
+    byte fineTune;
+} _tuner;
+
+
 };

@@ -1,5 +1,8 @@
 #include "FootController.h"
 
+// Statische callback functies
+	FootController* g_footController = nullptr;
+
 FootController::FootController() {
   _configManager = new ConfigManager();
   _buttonManager = new ButtonManager(_configManager);  // Geef ConfigManager door
@@ -20,7 +23,7 @@ void FootController::begin() {
   
   // Configureer displays op basis van config
   // Gebruik de juiste methode volgens je GitHub code
-  _displayManager->createDisplays();
+    _displayManager->createDisplays(_configManager->getDisplayConfigs(), _configManager->getDisplayCount());
   
   // Initialiseer Axe-Fx manager
   _axeFxManager->begin();
@@ -36,8 +39,6 @@ void FootController::begin() {
   _axeFxManager->registerLooperStatusCallback(onLooperStatusStatic);
 }
 
-// Statische callback functies
-static FootController* g_footController = nullptr;
 
 void FootController::onPresetChangeStatic(AxePreset preset) {
   if (g_footController) g_footController->onPresetChange(preset);

@@ -63,6 +63,7 @@ bool ConfigManager::loadConfig(const char* filename) {
   
   // Verwerk button configuraties
   JsonArray buttons = doc["buttons"].as<JsonArray>();  // Gebruik .as<JsonArray>()
+  
   for (JsonObject button : buttons) {
     uint8_t id = button["id"] | 0;
     if (id < MAX_BUTTONS) {
@@ -108,8 +109,8 @@ bool ConfigManager::saveConfig(const char* filename) {
   JsonDocument doc;  // Gebruik JsonDocument in plaats van StaticJsonDocument
   
   // Maak arrays voor buttons en displays
-  JsonArray buttons = doc.createNestedArray("buttons");
-  JsonArray displays = doc.createNestedArray("displays");
+  JsonArray buttons = doc["buttons"].to<JsonArray>();
+  JsonArray displays = doc["displays"].to<JsonArray>();
   
   // Voeg button configuraties toe
   for (int i = 0; i < MAX_BUTTONS; i++) {
