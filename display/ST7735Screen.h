@@ -25,14 +25,15 @@ public:
   void updateTuner(const char* note, byte string, byte fineTune) override;
   void showTuner(bool enabled, const char* note, byte string, byte fineTune) override;
   virtual void updateLooperStatus(AxeLooper looper) override; 
- 
+  AxeLooper _looper;
+   
 private:
   // Implementatie details
   Adafruit_ST7735* _display;
   uint8_t _csPin, _dcPin, _rstPin;
   bool _needsFullRedraw;
   uint8_t _contentType; // 0 = preset, 1 = effect, 2 = tuner
-  AxeLooper _looper;
+
   
   // Preset info
   uint16_t _presetNumber;
