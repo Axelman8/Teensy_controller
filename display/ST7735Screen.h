@@ -16,7 +16,6 @@ class ST7735Screen : public BaseScreen
 public:
   ST7735Screen(uint8_t csPin, uint8_t dcPin, uint8_t rstPin);
   virtual ~ST7735Screen();
-  
   void begin() override;
   void update() override;
   
@@ -25,7 +24,8 @@ public:
   void updateEffectStatus(AxeEffect effect) override;
   void updateTuner(const char* note, byte string, byte fineTune) override;
   void showTuner(bool enabled, const char* note, byte string, byte fineTune) override;
-  
+  virtual void updateLooperStatus(AxeLooper looper) override; 
+ 
 private:
   // Implementatie details
   Adafruit_ST7735* _display;

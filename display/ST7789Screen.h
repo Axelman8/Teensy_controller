@@ -23,6 +23,7 @@ public:
   void updateEffectStatus(AxeEffect effect) override;
   void updateTuner(const char* note, byte string, byte fineTune) override;
   void showTuner(bool enabled, const char* note, byte string, byte fineTune) override;
+  virtual void updateLooperStatus(AxeLooper looper) override;
   
 private:
   // Implementatie details

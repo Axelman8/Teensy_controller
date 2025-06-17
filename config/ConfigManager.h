@@ -40,12 +40,15 @@ DynamicJsonDocument doc(CONFIG_JSON_SIZE);
 
 // Button configuratie
 struct ButtonConfig {
-  uint8_t pin;       // GPIO pin nummer
-  uint8_t type;      // Button type (BUTTON_TYPE_*)
-  uint16_t value;    // Waarde (preset nummer, scene nummer, effect ID)
-  uint8_t holdType;  // Type actie bij lang indrukken
-  uint16_t holdValue; // Waarde voor lang indrukken
-};
+    uint8_t buttonId;
+    uint8_t type;
+    uint8_t value;
+    uint8_t holdType;
+    uint8_t holdValue;
+    char label[MAX_LABEL_LENGTH];
+    uint16_t color;
+    bool bypassed = false;
+
 
 // Display configuratie
 struct DisplayConfig {
@@ -75,6 +78,10 @@ public:
   // Getters voor aantallen
   uint8_t getButtonCount() const { return MAX_BUTTONS; }
   uint8_t getDisplayCount() const { return _displayCount; }
+  
+  public:
+    const DisplayConfig* getDisplayConfigs() const { return _displayConfigs; }
+    uint8_t getDisplayCount() const { return _displayCount; }
   
 private:
   void setDefaultConfig();
