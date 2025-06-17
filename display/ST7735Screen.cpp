@@ -1,5 +1,5 @@
 #include "ST7735Screen.h"
-#include "../..axe/AxeStructs.h"
+#include "../axe/AxeStructs.h"
 
 ST7735Screen::ST7735Screen(uint8_t csPin, uint8_t dcPin, uint8_t rstPin)
   : _csPin(csPin), _dcPin(dcPin), _rstPin(rstPin),
