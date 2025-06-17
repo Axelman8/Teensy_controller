@@ -11,23 +11,36 @@
 #define MAX_LABEL_LENGTH 20
 #define CONFIG_JSON_SIZE 4096
 
-// Structuren op globaal niveau (niet binnen een klasse)
+// Button types
+#define BUTTON_TYPE_NONE 0
+#define BUTTON_TYPE_PRESET 1
+#define BUTTON_TYPE_SCENE 2
+#define BUTTON_TYPE_EFFECT 3
+#define BUTTON_TYPE_TUNER 4
+#define BUTTON_TYPE_LOOPER 5
+
+// Display types
+#define DISPLAY_TYPE_NONE 0
+#define DISPLAY_TYPE_ST7735 1
+#define DISPLAY_TYPE_ST7789 2
+
+// Structuren
 struct ButtonConfig {
     uint8_t buttonId;
+    uint8_t pin;  // Fysieke pin voor de knop
     uint8_t type;
     uint8_t value;
     uint8_t holdType;
     uint8_t holdValue;
     char label[MAX_LABEL_LENGTH];
     uint16_t color;
-    bool bypassed = false;
+    bool bypassed;
 };
 
 struct ScreenConfig {
     uint8_t screenId;
     uint8_t type;
     uint8_t layout;
-    // andere velden
 };
 
 struct DisplayConfig {
@@ -35,7 +48,8 @@ struct DisplayConfig {
     uint8_t csPin;
     uint8_t dcPin;
     uint8_t rstPin;
-    // andere velden
+    uint16_t width;
+    uint16_t height;
 };
 
 // ConfigManager klasse
@@ -47,8 +61,6 @@ private:
     ButtonConfig _buttonConfigs[MAX_BUTTONS];
     ScreenConfig _screenConfigs[MAX_SCREENS];
     DisplayConfig _displayConfigs[MAX_DISPLAYS];
-    
-    // andere private velden
 
 public:
     ConfigManager();
@@ -61,25 +73,8 @@ public:
     ButtonConfig* getButtonConfig(uint8_t buttonId);
     DisplayConfig* getDisplayConfig(uint8_t displayId);
     
-    // Toegevoegde functies
     const DisplayConfig* getDisplayConfigs() const { return _displayConfigs; }
     uint8_t getDisplayCount() const { return _displayCount; }
-  
-  public:
-    const DisplayConfig* getDisplayConfigs() const { return _displayConfigs; }
-  
-private:
-  void setDefaultConfig();
-  
-  // SD kaart status
-  bool _sdInitialized;
-  
-  // Button configuraties
-  ButtonConfig _buttonConfigs[MAX_BUTTONS];
-  
-  // Display configuraties
-  DisplayConfig _displayConfigs[MAX_DISPLAYS];
-  uint8_t _displayCount;
 };
 
 #endif // CONFIG_MANAGER_H

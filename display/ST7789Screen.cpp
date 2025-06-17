@@ -53,6 +53,9 @@ void ST7789Screen::update() {
       case 2:
         drawTunerScreen();
         break;
+      case 3:  // Looper (voeg deze toe)
+        drawLooperScreen();
+        break;
     }
     
     _needsFullRedraw = false;
@@ -220,4 +223,35 @@ void ST7789Screen::drawTunerScreen() {
   
   // Teken kader rond het scherm
   _display->drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ST77XX_CYAN);
+}
+
+void ST7789Screen::drawLooperScreen() {
+  _display->fillScreen(ST77XX_BLACK);
+  
+  // Teken looper header
+  _display->setTextSize(2);
+  _display->setTextColor(ST77XX_WHITE);
+  _display->setCursor(10, 10);
+  _display->print("LOOPER");
+  
+  // Teken looper status
+  _display->setTextSize(1);
+  _display->setCursor(10, 40);
+  
+  if (_looper.record) {
+    _display->setTextColor(ST77XX_RED);
+    _display->print("RECORDING");
+  } else if (_looper.play) {
+    _display->setTextColor(ST77XX_GREEN);
+    _display->print("PLAYING");
+  } else if (_looper.overdub) {
+    _display->setTextColor(ST77XX_YELLOW);
+    _display->print("OVERDUB");
+  } else {
+    _display->setTextColor(ST77XX_WHITE);
+    _display->print("STOPPED");
+  }
+  
+  // Teken kader rond het scherm
+  _display->drawRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, ST77XX_BLUE);
 }

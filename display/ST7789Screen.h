@@ -31,6 +31,7 @@ private:
   uint8_t _csPin, _dcPin, _rstPin;
   bool _needsFullRedraw;
   uint8_t _contentType; // 0 = preset, 1 = effect, 2 = tuner
+  AxeLooper _looper;
   
   // Preset info
   uint16_t _presetNumber;
@@ -53,4 +54,7 @@ private:
   void drawPresetScreen();
   void drawEffectScreen();
   void drawTunerScreen();
+  void drawLooperScreen();
+
+
 };

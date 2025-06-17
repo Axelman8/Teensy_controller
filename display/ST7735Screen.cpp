@@ -42,16 +42,18 @@ void ST7735Screen::update() {
   select();
   
   if (_needsFullRedraw) {
-    // Teken het juiste scherm op basis van content type
     switch (_contentType) {
       case 0:  // Preset info
         drawPresetScreen();
         break;
-      case 1:  // Effect info
+      case 1:  // Effect
         drawEffectScreen();
         break;
       case 2:  // Tuner
         drawTunerScreen();
+        break;
+      case 3:  // Looper (voeg deze toe)
+        drawLooperScreen();
         break;
     }
     
@@ -205,4 +207,35 @@ void ST7735Screen::drawTunerScreen() {
   
   // Teken kader rond het scherm
   _display->drawRect(0, 0, ST7735_SCREEN_WIDTH, ST7735_SCREEN_HEIGHT, ST7735_GREEN);
+}
+
+void ST7735Screen::drawLooperScreen() {
+  _display->fillScreen(ST7735_BLACK);
+  
+  // Teken looper header
+  _display->setTextSize(2);
+  _display->setTextColor(ST7735_WHITE);
+  _display->setCursor(10, 10);
+  _display->print("LOOPER");
+  
+  // Teken looper status
+  _display->setTextSize(1);
+  _display->setCursor(10, 40);
+  
+  if (_looper.record) {
+    _display->setTextColor(ST7735_RED);
+    _display->print("RECORDING");
+  } else if (_looper.play) {
+    _display->setTextColor(ST7735_GREEN);
+    _display->print("PLAYING");
+  } else if (_looper.overdub) {
+    _display->setTextColor(ST7735_YELLOW);
+    _display->print("OVERDUB");
+  } else {
+    _display->setTextColor(ST7735_WHITE);
+    _display->print("STOPPED");
+  }
+  
+  // Teken kader rond het scherm
+  _display->drawRect(0, 0, _display->width(), _display->height(), ST7735_BLUE);
 }

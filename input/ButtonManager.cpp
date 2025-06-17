@@ -1,20 +1,14 @@
 #include "ButtonManager.h"
 
-ButtonManager::ButtonManager(ConfigManager* configManager)
-  : _configManager(configManager) {
-  
-  // Initialiseer button pins en states
+ButtonManager::ButtonManager(ConfigManager* configManager) : _configManager(configManager) {
+  // Initialiseer button pins
   for (int i = 0; i < MAX_BUTTONS; i++) {
-    // Haal pin configuratie op uit ConfigManager
     ButtonConfig* config = _configManager->getButtonConfig(i);
-    _buttonPins[i] = config->pin;
-    
-    // Initialiseer states
-    _buttonStates[i] = false;
-    _lastButtonStates[i] = false;
-    _lastDebounceTime[i] = 0;
-    _buttonHeld[i] = false;
-    _buttonPressTime[i] = 0;
+    if (config != nullptr) {
+      _buttonPins[i] = config->pin;
+    } else {
+      _buttonPins[i] = 0; // Ongeldige pin
+    }
   }
 }
 
